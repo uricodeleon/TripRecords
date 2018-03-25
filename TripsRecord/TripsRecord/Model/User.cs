@@ -9,11 +9,38 @@ namespace TripsRecord.Model
 {
     public class User :INotifyPropertyChanged
     {
-        public string Id { get; set; }
-        public string Email { get; set; }
-        public string Password { get; set; }
+        public string id { get; set; }
+        public string email { get; set; }
+        public string password { get; set; }
 
         public event PropertyChangedEventHandler PropertyChanged;
+
+        private void OnProperyChanged(string propertyName)
+        {
+            PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        public string Id 
+        {
+            get { return id; }
+            set { id = value;
+                OnProperyChanged("Id");
+            }
+        }
+        public string Email
+        {
+            get { return email; }
+            set { email = value;
+                OnProperyChanged("Email");
+            }
+        }
+        public string Password
+        {
+            get { return password; }
+            set { password = password;
+                OnProperyChanged("Password");
+            }
+        }
 
 
         //create user
