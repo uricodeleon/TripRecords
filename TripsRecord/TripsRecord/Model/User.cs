@@ -13,8 +13,9 @@ namespace TripsRecord.Model
         public string email { get; set; }
         public string password { get; set; }
 
-        public event PropertyChangedEventHandler PropertyChanged;
 
+
+        public event PropertyChangedEventHandler PropertyChanged;
         private void OnProperyChanged(string propertyName)
         {
             PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
@@ -42,7 +43,6 @@ namespace TripsRecord.Model
             }
         }
 
-
         /// <summary>
         /// Create user login
         /// </summary>
@@ -62,8 +62,14 @@ namespace TripsRecord.Model
                
             }
         }
-        
-        //Authentication
+    
+        /// <summary>
+        /// Basic Authentication
+        /// For Users
+        /// </summary>
+        /// <param name="_email"></param>
+        /// <param name="password"></param>
+        /// <returns></returns>
         public async Task<string> Authentication(string _email,string password)
         {
             string isAuthenticate = string.Empty;
@@ -74,7 +80,6 @@ namespace TripsRecord.Model
                 {
                     App.currentUser.Id = user.Id;
                     App.currentUser.Email = user.Email;
-
                     return  isAuthenticate = "1";
                 }
                 else
