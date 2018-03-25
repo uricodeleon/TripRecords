@@ -43,7 +43,12 @@ namespace TripsRecord.Model
         }
 
 
-        //create user
+        /// <summary>
+        /// Create user login
+        /// </summary>
+        /// <param name="_emailAddress"></param>
+        /// <param name="_password"></param>
+        /// <param name="_passwordConfirmation"></param>
         public async void CreateUser(string _emailAddress,string _password,string _passwordConfirmation)
         {
             if(_password == _passwordConfirmation)
