@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using SQLite;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -9,62 +11,72 @@ namespace TripsRecord.Model
 {
     public class User :INotifyPropertyChanged
     {
-        public string id { get; set; }
-        public string email { get; set; }
-        public string password { get; set; }
+        private string id;
 
-
-
-        public event PropertyChangedEventHandler PropertyChanged;
-        private void OnProperyChanged(string propertyName)
-        {
-            PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
-        }
-
-        public string Id 
+        public string Id
         {
             get { return id; }
-            set { id = value;
-                OnProperyChanged("Id");
+            set
+            {
+                id = value;
+                OnPropertyChanged("Id");
             }
         }
+
+        private string email;
+
         public string Email
         {
             get { return email; }
-            set { email = value;
-                OnProperyChanged("Email");
-            }
-        }
-        public string Password
-        {
-            get { return password; }
-            set { password = password;
-                OnProperyChanged("Password");
+            set
+            {
+                email = value;
+                OnPropertyChanged("Email");
             }
         }
 
-        /// <summary>
-        /// Create user login
-        /// </summary>
-        /// <param name="_emailAddress"></param>
-        /// <param name="_password"></param>
-        /// <param name="_passwordConfirmation"></param>
-        public async void CreateUser(string _emailAddress,string _password,string _passwordConfirmation)
+        private string password;
+
+        public string Password
         {
-            if(_password == _passwordConfirmation)
+            get { return password; }
+            set
             {
-                User _user = new User()
-                {
-                    Email = _emailAddress,
-                    Password = _password
-                };
-                await App.MobileService.GetTable<User>().InsertAsync(_user);
-               
+                password = value;
+                OnPropertyChanged("Password");
             }
         }
-    
+
+        private string confirmPassword;
+        public string ConfirmPassword
+        {
+            get { return confirmPassword; }
+            set
+            {
+                confirmPassword = value;
+                OnPropertyChanged("ConfirmPassword");
+            }
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        private void OnPropertyChanged(string propertyName)
+        {
+            if (PropertyChanged != null)
+                PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+        }
+
         /// <summary>
-        /// Basic Authentication
+        /// Creating new user
+        /// </summary>
+        /// <param name="_user"></param>
+        public async void CreateUser(User _user)
+        {       
+            await App.MobileService.GetTable<User>().InsertAsync(_user);
+
+        }
+        /// <summary>
+        /// Login Authentication
         /// For Users
         /// </summary>
         /// <param name="_email"></param>
@@ -80,12 +92,13 @@ namespace TripsRecord.Model
                 {
                     App.currentUser.Id = user.Id;
                     App.currentUser.Email = user.Email;
-                    return  isAuthenticate = "1";
+                    return isAuthenticate = "1";
                 }
                 else
                 {
                     return isAuthenticate = "2";
                 }
+
             }else
             {
                 return isAuthenticate = "3";

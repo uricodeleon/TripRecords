@@ -3,34 +3,34 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:local="clr-namespace:TripsRecord"
              x:Class="TripsRecord.MainPage">
-
     <StackLayout VerticalOptions="Center"
                  Margin="20,0">
         <Image x:Name="iconImage"
                Aspect="AspectFit"
-               HorizontalOptions="FillAndExpand"     
+               HorizontalOptions="FillAndExpand"
+               HeightRequest="150"
                Margin="0,0,0,50"/>
         <Entry x:Name="emailEntry" 
                Placeholder="Email Address"
-               Text="uricodeleon@gmail.com"
+               Text="{Binding Email, Mode=TwoWay}"
                TextColor="{StaticResource blueColor}"
                Keyboard="Email"/>
         <Entry x:Name="passwordEntry" 
                Placeholder="Password"
-               Text="test"
+               Text="{Binding Password, Mode=TwoWay}"
                IsPassword="True"
-                TextColor="{StaticResource blueColor}"/>
+               TextColor="{StaticResource blueColor}"/>
         <Button x:Name="loginButton" 
                 Margin="0,50,0,0"
                 Text="Log in"
-                Clicked="loginButton_Clicked"
+                Command="{Binding LoginCommand}"
+                CommandParameter="{Binding User}"
                 BackgroundColor="{StaticResource blueColor}"
                 TextColor="{StaticResource whiteColor}"
                 />
-        <Button x:Name="registerButton"
-                Margin="0,50,0,0"
+        <Button x:Name="registerUserButton"
                 Text="Register"
-                Clicked="registerButton_Clicked"
-                Style="{StaticResource normalButton}"/>
+                HorizontalOptions="End"
+                Command="{Binding RegisterNavigationCommand}"/>
     </StackLayout>
 </ContentPage>

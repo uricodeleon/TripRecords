@@ -5,6 +5,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TripsRecord.Model;
+using TripsRecord.ViewModel;
+using TripsRecord.ViewModel.Commands;
 using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
 
@@ -12,20 +14,23 @@ namespace TripsRecord
 {
 	[XamlCompilation(XamlCompilationOptions.Compile)]
 	public partial class HistoryPage : ContentPage
-	{
-		public HistoryPage ()
+    {
+        HistoryVM viewModel;
+        public HistoryPage ()
 		{
 			InitializeComponent ();
-		}
+            viewModel = new HistoryVM();
+            BindingContext = viewModel;
+        }
 
-        protected async override void OnAppearing()
+        protected  override void OnAppearing()
         {
             base.OnAppearing();
-
+             viewModel.UpdatePosts();
             //Azure Function
 
-            Post post = new Post();
-            postListView.ItemsSource = await post.GetUserExperience();
+            //var posts = await Post.Read();
+            //postListView.ItemsSource = posts;
 
             //Old Code
             //var posts = await App.MobileService.GetTable<Post>().Where(post => post.userId == App.currentUser.Id).ToListAsync();

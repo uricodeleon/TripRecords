@@ -21,7 +21,6 @@ namespace TripsRecord
 
         public static User currentUser = new User();
 
-
         public App ()
 		{
 			InitializeComponent();

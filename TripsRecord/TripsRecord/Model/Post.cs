@@ -1,4 +1,5 @@
-﻿using SQLite;
+﻿using Newtonsoft.Json;
+using SQLite;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -9,9 +10,9 @@ using Xamarin.Forms.Maps;
 
 namespace TripsRecord.Model
 {
-    public class Post :INotifyPropertyChanged
+    public class Post : INotifyPropertyChanged
     {
-        //[PrimaryKey, AutoIncrement]
+
         //public string Id { get; set; }
         //[MaxLength(250)]
         //public string Experience { get; set; }
@@ -24,22 +25,10 @@ namespace TripsRecord.Model
         //public int Distance { get; set; }
         //public string userId { get; set; }
 
-        public string id;
-        public string experience = string.Empty;
-        public string venueName = string.Empty;
-        public string categoryId = string.Empty;
-        public string categoryName = string.Empty;
-        public string address = string.Empty;
-        public double latitude;
-        public double longitude;
-        public int distance = 0;
-        public string userId { get; set; }
 
-        public event PropertyChangedEventHandler PropertyChanged;
-        private void OnProperyChanged(string propertyName)
-        {
-            PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
-        }
+
+
+        private string id;
 
         public string Id
         {
@@ -47,181 +36,201 @@ namespace TripsRecord.Model
             set
             {
                 id = value;
-                OnProperyChanged("Id");
+                OnPropertyChanged("Id");
             }
         }
+
+        private string experience;
+
         public string Experience
         {
             get { return experience; }
             set
             {
                 experience = value;
-                OnProperyChanged("Experience");
+                OnPropertyChanged("Experience");
             }
         }
+
+        private string venueName;
+
         public string VenueName
         {
             get { return venueName; }
             set
             {
                 venueName = value;
-                OnProperyChanged("VenueName");
+                OnPropertyChanged("VenueName");
             }
         }
+
+        private string categoryId;
+
         public string CategoryId
         {
             get { return categoryId; }
             set
             {
                 categoryId = value;
-                OnProperyChanged("CategoryId");
+                OnPropertyChanged("CategoryId");
             }
         }
+
+        private string categoryName;
+
         public string CategoryName
         {
             get { return categoryName; }
             set
             {
                 categoryName = value;
-                OnProperyChanged("CategoryName");
+                OnPropertyChanged("CategoryName");
             }
         }
+
+        private string address;
+
         public string Address
         {
             get { return address; }
             set
             {
                 address = value;
-                OnProperyChanged("Address");
+                OnPropertyChanged("Address");
             }
         }
+
+        private double latitude;
+
         public double Latitude
         {
             get { return latitude; }
             set
             {
                 latitude = value;
-                OnProperyChanged("Latitude");
+                OnPropertyChanged("Latitude");
             }
         }
+
+        private double longitude;
+
         public double Longitude
         {
             get { return longitude; }
             set
             {
                 longitude = value;
-                OnProperyChanged("Longitude");
+                OnPropertyChanged("Longitude");
             }
         }
+
+        private int distance;
+
         public int Distance
         {
             get { return distance; }
             set
             {
                 distance = value;
-                OnProperyChanged("Distance");
+                OnPropertyChanged("Distance");
             }
         }
+
+        private string userId;
+
         public string UserId
         {
             get { return userId; }
             set
             {
                 userId = value;
-                OnProperyChanged("UserId");
+                OnPropertyChanged("UserId");
             }
         }
 
-        //insert data to post table
-        public async void Insert(Post post)
+        private Venue venue;
+
+        [JsonIgnore]
+
+        public Venue Venue
+        {
+            get { return venue; }
+            set
+            {
+                venue = value;
+
+                if (venue.categories != null)
+                {
+                    var firstCategory = venue.categories.FirstOrDefault();
+
+                    if (firstCategory != null)
+                    {
+                        CategoryId = firstCategory.id;
+                        CategoryName = firstCategory.name;
+                    }
+                }
+                if (venue.location != null)
+                {
+                    Address = venue.location.address;
+                    Distance = venue.location.distance;
+                    Latitude = venue.location.lat;
+                    Longitude = venue.location.lng;
+                }
+                VenueName = venue.name;
+                UserId = App.currentUser.Id;
+
+                OnPropertyChanged("Venue");
+            }
+        }
+
+        private DateTimeOffset createdat;
+
+        public DateTimeOffset CREATEDAT
+        {
+            get { return createdat; }
+            set
+            {
+                createdat = value;
+                OnPropertyChanged("CREATEDAT");
+            }
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        private void OnPropertyChanged(string propertyName)
+        {
+            if (PropertyChanged != null)
+                PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        public static async void Insert(Post post)
         {
             await App.MobileService.GetTable<Post>().InsertAsync(post);
         }
 
-        //get the user's experience 
-        //base on user's id
-        public async Task<List<Post>> GetUserExperience()
+        public static async Task<List<Post>> Read()
         {
-            List<Post> _post = new List<Post>();
-            var post = App.MobileService.GetTable<Post>().Where(x => x.userId == App.currentUser.Id).ToListAsync();
-
-            if (_post !=null) {          
-                _post = await post;              
-            }
-            return await post;
+            var posts = await App.MobileService.GetTable<Post>().Where(p => p.UserId == App.currentUser.Id).ToListAsync();
+            return posts;
         }
 
-        //Get The place Experience
-        public async Task<List<Post>> GetPlaceExperience(Map map)
+        public static Dictionary<string, int> PostCategories(List<Post> posts)
         {
-            List<Post> _post = new List<Post>();
-
-            if (_post !=null) {
-                var posts = await App.MobileService.GetTable<Post>().Where(post => post.userId == App.currentUser.Id).ToListAsync();
-                _post = posts;
-                DisplayInMap(_post, map);
-               
-            }
-            return _post;
-        }
-
-        //Get Count of User visited place and experience
-        public async Task<Dictionary<string,int>> CategoryCount()
-        {
-            var _postTable = await App.MobileService.GetTable<Post>().Where(post => post.userId == App.currentUser.Id).ToListAsync();
-            var categories = _postTable.OrderBy(x => x.CategoryId).Select(x => x.CategoryName).Distinct().ToList();
+            var categories = (from p in posts
+                              orderby p.CategoryId
+                              select p.CategoryName).Distinct().ToList();
 
             Dictionary<string, int> categoriesCount = new Dictionary<string, int>();
-
             foreach (var category in categories)
             {
-                var count = _postTable.Where(x => x.CategoryName == category).ToList().Count();
+                var count = (from post in posts
+                             where post.CategoryName == category
+                             select post).ToList().Count;
+
                 categoriesCount.Add(category, count);
             }
+
             return categoriesCount;
-        }
-
-
-        //Display the map pin in the 
-        //visited places or areas
-        public async void DisplayInMap(List<Post> _post, Map _location)
-        {
-            foreach (var post in _post)
-            {
-                try
-                {
-                    var position =  new Xamarin.Forms.Maps.Position(post.Latitude, post.Longitude);
-                    var pin = new Xamarin.Forms.Maps.Pin()
-                    {
-                        Type = Xamarin.Forms.Maps.PinType.SavedPin,
-                        Position = position,
-                        Label = post.VenueName,
-                        Address = post.Address
-                    };
-                    _location.Pins.Add(pin);
-                }
-                catch (NullReferenceException nre) { }
-                catch (Exception ex) { }
-            }
-            await Task.Delay(20);
-        }
-        public async void InsertTripPlaces(string _experience,Venue _venue, Category firstCategory)
-        {
-            Post post = new Post()
-            {
-                Experience = _experience,
-                CategoryId = firstCategory.id,
-                CategoryName = firstCategory.name,
-                Address = _venue.location.address,
-                Distance = _venue.location.distance,
-                Latitude = _venue.location.lat,
-                Longitude = _venue.location.lng,
-                VenueName = _venue.name,
-                userId = App.currentUser.Id
-            };
-
-             post.Insert(post); 
-             await Task.Delay(10);
         }
     }
 }

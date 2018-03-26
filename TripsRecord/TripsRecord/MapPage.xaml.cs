@@ -39,11 +39,11 @@ namespace TripsRecord
             locationsMap.MoveToRegion(span);
 
 
-            Post post = new Post();
-            await post.GetPlaceExperience(locationsMap);
-            
+            var posts = await Post.Read();
+            DisplayInMap(posts);
+
             //Azure Function
-           
+
             //Old Code
             //var posts = await App.MobileService.GetTable<Post>().Where(post => post.userId == App.currentUser.Id).ToListAsync();
             //DisplayInMap(posts);
@@ -57,26 +57,26 @@ namespace TripsRecord
             //}
         }
 
-        //private void DisplayInMap(List<Post> posts)
-        //{
-        //    foreach (var post in posts)
-        //    {
-        //        try
-        //        {
-        //            var position = new Xamarin.Forms.Maps.Position(post.Latitude, post.Longitude);
+        private void DisplayInMap(List<Post> posts)
+        {
+            foreach (var post in posts)
+            {
+                try
+                {
+                    var position = new Xamarin.Forms.Maps.Position(post.Latitude, post.Longitude);
 
-        //            var pin = new Xamarin.Forms.Maps.Pin()
-        //            {
-        //                Type = Xamarin.Forms.Maps.PinType.SavedPin,
-        //                Position = position,
-        //                Label = post.VenueName,
-        //                Address = post.Address
-        //            };
-        //            locationsMap.Pins.Add(pin);
-        //        }
-        //        catch (NullReferenceException nre) { }
-        //        catch (Exception ex) { }
-        //    }
-        //}
+                    var pin = new Xamarin.Forms.Maps.Pin()
+                    {
+                        Type = Xamarin.Forms.Maps.PinType.SavedPin,
+                        Position = position,
+                        Label = post.VenueName,
+                        Address = post.Address
+                    };
+                    locationsMap.Pins.Add(pin);
+                }
+                catch (NullReferenceException nre) { }
+                catch (Exception ex) { }
+            }
+        }
     }
 }

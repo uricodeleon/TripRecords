@@ -20,11 +20,12 @@ namespace TripsRecord
         protected async override void OnAppearing()
         {
             base.OnAppearing();
-            Post post = new Post();
+            var postTable = await Post.Read();
+            var categoriesCount = Post.PostCategories(postTable);
 
             //Azure
-            var _postTable = await App.MobileService.GetTable<Post>().Where(x => x.userId == App.currentUser.Id).ToListAsync();
-            categoriesListView.ItemsSource = await post.CategoryCount();
+            var _postTable = await App.MobileService.GetTable<Post>().Where(x => x.Id == App.currentUser.Id).ToListAsync();
+            categoriesListView.ItemsSource = categoriesCount;
             postCountLabel.Text = _postTable.Count.ToString();
 
 
